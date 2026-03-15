@@ -16,6 +16,7 @@ A production-ready REST API boilerplate built with Fastify, TypeScript, Prisma, 
 - **[@fastify/rate-limit](https://github.com/fastify/fastify-rate-limit)** — Global and per-route rate limiting
 - **[@fastify/helmet](https://github.com/fastify/fastify-helmet)** — Security headers
 - **[@fastify/cors](https://github.com/fastify/fastify-cors)** — CORS support
+- **[@fastify/cookie](https://github.com/fastify/fastify-cookie)** — Cookie parsing and serialization
 - **[@fastify/multipart](https://github.com/fastify/fastify-multipart)** — File uploads (5 MB limit)
 - **[AWS S3](https://aws.amazon.com/s3/)** — Profile image storage
 - **[AWS SES](https://aws.amazon.com/ses/)** — Transactional email (password reset)
@@ -52,7 +53,6 @@ fastify-boilerplate/
 │   │   │   ├── auth.schemas.ts    # Zod schemas
 │   │   │   ├── auth.service.ts    # Business logic
 │   │   │   ├── auth.handlers.ts   # Route handlers
-│   │   │   ├── auth.docs.ts       # Swagger schema definitions
 │   │   │   ├── auth.routes.ts     # Route definitions
 │   │   │   └── templates/
 │   │   │       └── reset-password.template.ts
@@ -63,7 +63,6 @@ fastify-boilerplate/
 │   │       ├── users.schemas.ts   # Zod schemas
 │   │       ├── users.service.ts   # Business logic + Redis cache
 │   │       ├── users.handlers.ts  # Route handlers
-│   │       ├── users.docs.ts      # Swagger schema definitions
 │   │       └── users.routes.ts    # Route definitions
 │   └── types/
 │       └── fastify.d.ts       # Fastify type augmentations
@@ -127,6 +126,10 @@ The server starts on `http://localhost:8080`. API docs are available at `http://
 | `npm run db:migrate` | Create and run a migration |
 | `npm run db:studio` | Open Prisma Studio |
 | `npm run db:seed` | Seed the database |
+| `npm run format` | Format source files with Prettier |
+| `npm run check-format` | Check formatting without writing |
+| `npm run lint` | Lint source files with ESLint |
+| `npm run lint:fix` | Lint and auto-fix issues |
 
 ## Environment Variables
 
@@ -167,6 +170,10 @@ The server starts on `http://localhost:8080`. API docs are available at `http://
 | POST | `/auth/reset-password` | — | 10 / 1 hr | Reset password with token |
 | GET | `/auth/get-token` | Refresh token | 30 / 15 min | Get new access token |
 | GET | `/auth/me` | Bearer | — | Get current user |
+| PUT | `/auth/profile` | Bearer | 20 / min | Update current user profile |
+| PUT | `/auth/profile/password` | Bearer | 5 / 15 min | Change current user password |
+| POST | `/auth/profile/photo` | Bearer | 10 / min | Upload profile photo (multipart) |
+| DELETE | `/auth/profile/photo` | Bearer | 10 / min | Delete profile photo |
 
 ### Users
 
@@ -179,8 +186,6 @@ All user endpoints require `Authorization: Bearer <accessToken>`.
 | GET | `/users/:userId` | 60 / min | Get user by ID |
 | PUT | `/users/:userId` | 30 / min | Update user |
 | DELETE | `/users/:userId` | 20 / min | Delete user |
-| POST | `/users/:userId/profile` | 10 / min | Upload profile image (multipart) |
-| DELETE | `/users/:userId/profile` | 10 / min | Delete profile image |
 
 ### Response Format
 
@@ -239,8 +244,7 @@ src/modules/<name>/
 ├── <name>.schemas.ts     # Zod validation schemas
 ├── <name>.service.ts     # Business logic
 ├── <name>.handlers.ts    # Route handlers (separate exported functions)
-├── <name>.docs.ts        # Swagger schema definitions (body, params, responses)
-└── <name>.routes.ts      # Fastify route registration
+└── <name>.routes.ts      # Fastify route registration (includes inline schema/docs)
 ```
 
 Register the module in `src/index.ts`:
