@@ -2,7 +2,6 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { ok, fail } from '@/core/lib/response'
 import { errorCodes } from '@/core/lib/errors'
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from '@/core/lib/jwt'
-import { uploadFile, deleteFile, keyFromUrl } from '@/core/lib/storage'
 import { config } from '@/core/config'
 import {
   signInSchema,
@@ -19,9 +18,7 @@ import type {
   TResetPasswordRequest,
   TUpdateProfileRequest,
   TChangePasswordRequest,
-  TUpdateProfilePhotoRequest,
 } from '@/modules/auth/auth.types'
-import { randomUUID } from 'crypto'
 
 function getService(request: FastifyRequest) {
   return new AuthService(request.server.prisma)
@@ -71,7 +68,6 @@ export const signIn = async (request: TSignInRequest, reply: FastifyReply) => {
             firstName: user.firstName,
             lastName: user.lastName,
             email: user.email,
-            photo: user.photo,
           },
         },
         responseMessages.SIGNED_IN,
@@ -182,42 +178,3 @@ export const changePassword = async (request: TChangePasswordRequest, reply: Fas
   return reply.send(ok(null, responseMessages.PASSWORD_CHANGED))
 }
 
-export const updateProfilePhoto = async (
-  request: TUpdateProfilePhotoRequest,
-  reply: FastifyReply,
-) => {
-  const service = getService(request)
-  const { currentUser } = request
-
-  if (!request.body.photo) {
-    return reply.status(400).send(fail(errorCodes.VALIDATION_ERROR, 'No file provided'))
-  }
-  const fileKey = randomUUID()
-  const file = await request.file()
-  const buffer = await file?.toBuffer()
-
-  const key = `profiles/${Date.now()}-${fileKey}`
-  const profileUrl = await uploadFile(key, buffer!, file?.mimetype!)
-
-  if (currentUser.photo) {
-    await deleteFile(keyFromUrl(currentUser.photo))
-  }
-
-  const user = await service.updateProfilePhoto(request.currentUser.id, profileUrl)
-  return reply.send(ok(user, responseMessages.PROFILE_PHOTO_UPDATED))
-}
-
-export const deleteProfilePhoto = async (request: FastifyRequest, reply: FastifyReply) => {
-  const service = getService(request)
-  const { currentUser } = request
-
-  if (!currentUser.photo) {
-    return reply
-      .status(400)
-      .send(fail(errorCodes.VALIDATION_ERROR, responseMessages.NO_PROFILE_PHOTO_TO_DELETE))
-  }
-
-  await deleteFile(keyFromUrl(currentUser.photo))
-  const user = await service.deleteProfilePhoto(currentUser.id)
-  return reply.send(ok(user, responseMessages.PROFILE_PHOTO_DELETED))
-}

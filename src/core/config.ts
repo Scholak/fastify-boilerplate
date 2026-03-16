@@ -17,9 +17,6 @@ export const config = {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
   },
-  s3: {
-    bucket: process.env.AWS_S3_BUCKET || 'your-bucket-name',
-  },
   ses: {
     fromEmail: process.env.SES_FROM_EMAIL || 'no-reply@yourdomain.com',
     fromName: process.env.SES_FROM_NAME || 'Your App',

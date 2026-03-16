@@ -7,7 +7,6 @@ import {
 import cors from '@fastify/cors'
 import helmet from '@fastify/helmet'
 import fastifyCookie from '@fastify/cookie'
-import multipart from '@fastify/multipart'
 import rateLimit from '@fastify/rate-limit'
 import swagger from '@fastify/swagger'
 import swaggerUi from '@fastify/swagger-ui'
@@ -15,7 +14,6 @@ import { config } from '@/core/config'
 import prismaPlugin from '@/core/plugins/prisma'
 import redisPlugin from '@/core/plugins/redis'
 import errorHandlerPlugin from '@/core/plugins/error-handler'
-import multipartFieldsPlugin from '@/core/plugins/multipart-fields'
 import { fail } from '@/core/lib/response'
 import { errorCodes } from '@/core/lib/errors'
 import { ZodTypeProvider } from 'fastify-type-provider-zod'
@@ -91,10 +89,5 @@ export async function registerPlugins(fastify: ReturnType<typeof createApp>) {
 
   await fastify.register(prismaPlugin)
   await fastify.register(redisPlugin)
-  await fastify.register(multipart, {
-    attachFieldsToBody: true,
-    limits: { fileSize: 5 * 1024 * 1024 },
-  })
   await fastify.register(errorHandlerPlugin)
-  await fastify.register(multipartFieldsPlugin)
 }

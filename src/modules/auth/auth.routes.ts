@@ -10,8 +10,6 @@ import {
   me,
   updateProfile,
   changePassword,
-  updateProfilePhoto,
-  deleteProfilePhoto,
 } from '@/modules/auth/auth.handlers'
 import {
   signInSchema,
@@ -19,7 +17,6 @@ import {
   resetPasswordSchema,
   updateProfileSchema,
   changePasswordSchema,
-  changeProfilePhotoSchema,
   authUserSchema,
   currentUserSchema,
 } from '@/modules/auth/auth.schemas'
@@ -165,45 +162,5 @@ export async function authRoutes(fastify: FastifyInstance) {
       },
     },
     changePassword,
-  )
-
-  fastify.post(
-    '/auth/profile/photo',
-    {
-      preHandler: authenticate,
-      config: { rateLimit: authRateLimits.updateProfilePhoto },
-      schema: {
-        tags: ['Auth'],
-        summary: 'Update authenticated user profile photo',
-        security: [{ bearerAuth: [] }],
-        consumes: ['multipart/form-data'],
-        body: changeProfilePhotoSchema,
-        response: {
-          200: apiResponse(currentUserSchema),
-          400: errorResponseSchema,
-          401: errorResponseSchema,
-        },
-      },
-    },
-    updateProfilePhoto,
-  )
-
-  fastify.delete(
-    '/auth/profile/photo',
-    {
-      preHandler: authenticate,
-      config: { rateLimit: authRateLimits.deleteProfilePhoto },
-      schema: {
-        tags: ['Auth'],
-        summary: 'Delete authenticated user profile photo',
-        security: [{ bearerAuth: [] }],
-        response: {
-          200: apiResponse(currentUserSchema),
-          400: errorResponseSchema,
-          401: errorResponseSchema,
-        },
-      },
-    },
-    deleteProfilePhoto,
   )
 }

@@ -2,7 +2,6 @@ import { FastifyRequest, FastifyReply } from 'fastify'
 import { Prisma } from '@prisma/client'
 import { ok, fail } from '@/core/lib/response'
 import { errorCodes } from '@/core/lib/errors'
-import { deleteFile, keyFromUrl } from '@/core/lib/storage'
 import { UsersService } from '@/modules/users/users.service'
 import { responseMessages } from '@/modules/users/users.constants'
 import type {
@@ -80,12 +79,7 @@ export const update = async (request: TUpdateUserRequest, reply: FastifyReply) =
 export const remove = async (request: TDeleteUserRequest, reply: FastifyReply) => {
   try {
     const service = getService(request)
-    const user = await service.delete(request.params.userId)
-
-    if (user.photo) {
-      await deleteFile(keyFromUrl(user.photo))
-    }
-
+    await service.delete(request.params.userId)
     return reply.send(ok(null, responseMessages.USER_DELETED))
   } catch (err: unknown) {
     if (err instanceof Prisma.PrismaClientKnownRequestError) {

@@ -47,21 +47,11 @@ export const changePasswordSchema = z
     message: vm.confirmPassword.match,
   })
 
-export const changeProfilePhotoSchema = z.object({
-  photo: z.object({
-    filename: z.string(),
-    mimetype: z.string(),
-    limit: z.boolean().optional(),
-    file: z.custom<File>(),
-  }),
-})
-
 export const authUserSchema = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
-  photo: z.string().nullable(),
 })
 
 export const currentUserSchema = z.object({
@@ -69,7 +59,6 @@ export const currentUserSchema = z.object({
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
-  photo: z.string().nullable(),
   createdAt: z.union([z.string(), z.date()]),
   updatedAt: z.union([z.string(), z.date()]),
 })
@@ -79,4 +68,3 @@ export type TForgotPasswordSchema = z.infer<typeof forgotPasswordSchema>
 export type TResetPasswordSchema = z.infer<typeof resetPasswordSchema>
 export type TUpdateProfileSchema = z.infer<typeof updateProfileSchema>
 export type TChangePasswordSchema = z.infer<typeof changePasswordSchema>
-export type TChangeProfilePhotoSchema = z.infer<typeof changeProfilePhotoSchema>

@@ -1,7 +1,6 @@
-import '@fastify/multipart'
+export {}
 
 declare module 'fastify' {
-  // Fix: 'prisma' / 'redis' does not exist on FastifyInstance
   interface FastifyInstance {
     prisma: import('@prisma/client').PrismaClient
     redis: import('ioredis').default
@@ -22,7 +21,6 @@ declare module 'fastify' {
       firstName: string
       lastName: string
       email: string
-      photo: string | null
       createdAt: Date
       updatedAt: Date
     }

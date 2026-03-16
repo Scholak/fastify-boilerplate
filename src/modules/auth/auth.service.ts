@@ -12,7 +12,6 @@ const safeFields = {
   firstName: true,
   lastName: true,
   email: true,
-  photo: true,
   createdAt: true,
   updatedAt: true,
   createdById: true,
@@ -105,21 +104,4 @@ export class AuthService {
     })
   }
 
-  /** Updates the authenticated user's profile photo URL. */
-  async updateProfilePhoto(userId: string, profileUrl: string) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { photo: profileUrl },
-      select: safeFields,
-    })
-  }
-
-  /** Removes the authenticated user's profile photo (sets it to null). */
-  async deleteProfilePhoto(userId: string) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { photo: null },
-      select: safeFields,
-    })
-  }
 }

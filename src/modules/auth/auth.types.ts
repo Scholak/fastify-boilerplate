@@ -1,7 +1,6 @@
 import { FastifyRequest, RouteGenericInterface } from 'fastify'
 import {
   TChangePasswordSchema,
-  TChangeProfilePhotoSchema,
   TForgotPasswordSchema,
   TResetPasswordSchema,
   TSignInSchema,
@@ -22,7 +21,4 @@ export type TUpdateProfileRequest = FastifyRequest<
 >
 export type TChangePasswordRequest = FastifyRequest<
   { Body: TChangePasswordSchema } & RouteGenericInterface
->
-export type TUpdateProfilePhotoRequest = FastifyRequest<
-  { Body: TChangeProfilePhotoSchema } & RouteGenericInterface
 >

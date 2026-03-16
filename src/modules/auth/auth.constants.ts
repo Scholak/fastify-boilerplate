@@ -42,8 +42,5 @@ export const responseMessages = {
   INVALID_EXPIRED_REFRESH_TOKEN: 'Invalid or expired refresh token',
   PROFILE_UPDATED: 'Profile updated successfully',
   PASSWORD_CHANGED: 'Password changed successfully',
-  PROFILE_PHOTO_UPDATED: 'Profile photo updated successfully',
-  PROFILE_PHOTO_DELETED: 'Profile photo deleted successfully',
-  NO_PROFILE_PHOTO_TO_DELETE: 'No profile photo to delete',
   INVALID_CURRENT_PASSWORD: 'Current password is incorrect',
 } as const
