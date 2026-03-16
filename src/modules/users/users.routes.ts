@@ -2,13 +2,7 @@ import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
 import { authenticate } from '@/core/plugins/authenticate'
 import { usersRateLimits } from '@/modules/users/users.config'
-import {
-  list,
-  getOne,
-  create,
-  update,
-  remove,
-} from '@/modules/users/users.handlers'
+import { list, getOne, create, update, remove } from '@/modules/users/users.handlers'
 import {
   createUserSchema,
   updateUserSchema,
@@ -119,5 +113,4 @@ export async function usersRoutes(fastify: FastifyInstance) {
     },
     remove,
   )
-
 }

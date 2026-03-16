@@ -10,7 +10,7 @@ import {
   updateProfileSchema,
   changePasswordSchema,
 } from '@/modules/auth/auth.schemas'
-import { AuthService } from '@/modules/auth/auth.service'
+import * as authService from '@/modules/auth/auth.service'
 import { responseMessages } from '@/modules/auth/auth.constants'
 import type {
   TSignInRequest,
@@ -20,19 +20,14 @@ import type {
   TChangePasswordRequest,
 } from '@/modules/auth/auth.types'
 
-function getService(request: FastifyRequest) {
-  return new AuthService(request.server.prisma)
-}
-
 export const signIn = async (request: TSignInRequest, reply: FastifyReply) => {
   const result = signInSchema.safeParse(request.body)
   if (!result.success) {
     return reply.status(400).send(fail(errorCodes.VALIDATION_ERROR, ''))
   }
 
-  const service = getService(request)
   const { email, password } = result.data
-  const user = await service.findUserByEmail(email)
+  const user = await authService.findUserByEmail(email)
 
   if (!user) {
     return reply
@@ -40,7 +35,7 @@ export const signIn = async (request: TSignInRequest, reply: FastifyReply) => {
       .send(fail(errorCodes.INVALID_CREDENTIALS, responseMessages.INVALID_CREDENTIALS))
   }
 
-  const valid = await service.validatePassword(password, user.passwordHash)
+  const valid = await authService.validatePassword(password, user.passwordHash)
   if (!valid) {
     return reply
       .status(401)
@@ -81,15 +76,14 @@ export const forgotPassword = async (request: TForgotPasswordRequest, reply: Fas
     return reply.status(400).send(fail(errorCodes.VALIDATION_ERROR, ''))
   }
 
-  const service = getService(request)
-  const user = await service.findUserByEmail(result.data.email)
+  const user = await authService.findUserByEmail(result.data.email)
 
   if (!user) {
     return reply.send(ok(null, responseMessages.RESET_LINK_SENT))
   }
 
-  const resetToken = await service.generateResetToken(user.id)
-  await service.sendPasswordResetEmail(user.email, user.firstName, resetToken)
+  const resetToken = await authService.generateResetToken(user.id)
+  await authService.sendPasswordResetEmail(user.email, user.firstName, resetToken)
 
   return reply.send(ok(null, responseMessages.RESET_LINK_SENT))
 }
@@ -100,15 +94,14 @@ export const resetPassword = async (request: TResetPasswordRequest, reply: Fasti
     return reply.status(400).send(fail(errorCodes.VALIDATION_ERROR, ''))
   }
 
-  const service = getService(request)
   const { token, newPassword } = result.data
-  const user = await service.findUserByResetToken(token)
+  const user = await authService.findUserByResetToken(token)
 
   if (!user) {
     return reply.status(400).send(fail(errorCodes.INVALID_TOKEN, responseMessages.INVALID_TOKEN))
   }
 
-  await service.resetPassword(user.id, newPassword)
+  await authService.resetPassword(user.id, newPassword)
   return reply.send(ok(null, responseMessages.PASSWORD_RESET))
 }
 
@@ -120,8 +113,7 @@ export const getToken = async (request: FastifyRequest, reply: FastifyReply) => 
 
   try {
     const payload = await verifyRefreshToken(refreshToken)
-    const service = getService(request)
-    const user = await service.findUserById(payload.userId)
+    const user = await authService.findUserById(payload.userId)
 
     if (!user) {
       return reply
@@ -148,8 +140,7 @@ export const updateProfile = async (request: TUpdateProfileRequest, reply: Fasti
     return reply.status(400).send(fail(errorCodes.VALIDATION_ERROR, ''))
   }
 
-  const service = getService(request)
-  const user = await service.updateProfileData(request.currentUser.id, result.data)
+  const user = await authService.updateProfileData(request.currentUser.id, result.data)
   return reply.send(ok(user, responseMessages.PROFILE_UPDATED))
 }
 
@@ -159,22 +150,20 @@ export const changePassword = async (request: TChangePasswordRequest, reply: Fas
     return reply.status(400).send(fail(errorCodes.VALIDATION_ERROR, ''))
   }
 
-  const service = getService(request)
   const { currentPassword, newPassword } = result.data
 
-  const user = await service.findUserById(request.currentUser.id)
+  const user = await authService.findUserById(request.currentUser.id)
   if (!user) {
     return reply.status(401).send(fail(errorCodes.UNAUTHORIZED, 'User not found'))
   }
 
-  const valid = await service.validatePassword(currentPassword, user.passwordHash)
+  const valid = await authService.validatePassword(currentPassword, user.passwordHash)
   if (!valid) {
     return reply
       .status(400)
       .send(fail(errorCodes.VALIDATION_ERROR, responseMessages.INVALID_CURRENT_PASSWORD))
   }
 
-  await service.resetPassword(user.id, newPassword)
+  await authService.resetPassword(user.id, newPassword)
   return reply.send(ok(null, responseMessages.PASSWORD_CHANGED))
 }
-

@@ -17,8 +17,6 @@ A production-ready REST API boilerplate built with Fastify, TypeScript, Prisma, 
 - **[@fastify/helmet](https://github.com/fastify/fastify-helmet)** — Security headers
 - **[@fastify/cors](https://github.com/fastify/fastify-cors)** — CORS support
 - **[@fastify/cookie](https://github.com/fastify/fastify-cookie)** — Cookie parsing and serialization
-- **[@fastify/multipart](https://github.com/fastify/fastify-multipart)** — File uploads (5 MB limit)
-- **[AWS S3](https://aws.amazon.com/s3/)** — Profile image storage
 - **[AWS SES](https://aws.amazon.com/ses/)** — Transactional email (password reset)
 
 ## Project Structure
@@ -30,6 +28,7 @@ fastify-boilerplate/
 │   └── seed.ts                # Seed script (admin user)
 ├── src/
 │   ├── index.ts               # Entry point
+│   ├── app.ts                 # Singleton Fastify instance
 │   ├── core/
 │   │   ├── config.ts          # Environment configuration
 │   │   ├── bootstrap.ts       # App factory & plugin registration
@@ -38,7 +37,6 @@ fastify-boilerplate/
 │   │   │   ├── response.ts    # Standardized response helpers
 │   │   │   ├── jwt.ts         # JWT sign/verify helpers
 │   │   │   ├── password.ts    # bcrypt helpers
-│   │   │   ├── storage.ts     # S3 upload/delete helpers
 │   │   │   └── email.ts       # SES email sender
 │   │   └── plugins/
 │   │       ├── authenticate.ts  # JWT auth preHandler hook
@@ -148,7 +146,6 @@ The server starts on `http://localhost:8080`. API docs are available at `http://
 | `AWS_REGION` | AWS region | `us-east-1` |
 | `AWS_ACCESS_KEY_ID` | AWS access key | — |
 | `AWS_SECRET_ACCESS_KEY` | AWS secret key | — |
-| `AWS_S3_BUCKET` | S3 bucket name for profile images | — |
 | `SES_FROM_EMAIL` | Sender email address (SES verified) | — |
 | `SES_FROM_NAME` | Sender display name | — |
 | `APP_URL` | App base URL (used in email links) | `http://localhost:3000` |
@@ -172,8 +169,6 @@ The server starts on `http://localhost:8080`. API docs are available at `http://
 | GET | `/auth/me` | Bearer | — | Get current user |
 | PUT | `/auth/profile` | Bearer | 20 / min | Update current user profile |
 | PUT | `/auth/profile/password` | Bearer | 5 / 15 min | Change current user password |
-| POST | `/auth/profile/photo` | Bearer | 10 / min | Upload profile photo (multipart) |
-| DELETE | `/auth/profile/photo` | Bearer | 10 / min | Delete profile photo |
 
 ### Users
 
@@ -250,7 +245,7 @@ src/modules/<name>/
 Register the module in `src/index.ts`:
 
 ```typescript
-await fastify.register(myModuleRoutes);
+await fastify.register(myModuleRoutes, { prefix: '/api' });
 ```
 
 ## Database
@@ -266,4 +261,4 @@ Run `npm run db:migrate` to create a named migration for schema changes in produ
 
 ## Caching
 
-Redis is used for caching user queries in `UsersService`. Cached data expires after `REDIS_TTL` seconds (default 300). The cache is invalidated on create, update, and delete operations.
+Redis is used for caching user queries in the users service. Cached data expires after `REDIS_TTL` seconds (default 300). The cache is invalidated on create, update, and delete operations.

@@ -1,4 +1,4 @@
-import { PrismaClient } from '@prisma/client'
+import { fastify } from '@/app'
 import { comparePassword, hashPassword } from '@/core/lib/password'
 import { sendEmail } from '@/core/lib/email'
 import { config } from '@/core/config'
@@ -18,90 +18,63 @@ const safeFields = {
   updatedById: true,
 } as const
 
-/** Handles all authentication-related database and email operations. */
-export class AuthService {
-  constructor(private prisma: PrismaClient) {}
+export async function findUserByEmail(email: string) {
+  return fastify.prisma.user.findUnique({ where: { email } })
+}
 
-  /** Finds a user by their email address. Returns `null` if not found. */
-  async findUserByEmail(email: string) {
-    return this.prisma.user.findUnique({ where: { email } })
-  }
+export async function findUserById(id: string) {
+  return fastify.prisma.user.findUnique({ where: { id } })
+}
 
-  /** Finds a user by their primary key. Returns `null` if not found. */
-  async findUserById(id: string) {
-    return this.prisma.user.findUnique({ where: { id } })
-  }
+export async function findUserByResetToken(token: string) {
+  return fastify.prisma.user.findFirst({
+    where: {
+      resetToken: token,
+      resetTokenExpiry: { gt: new Date() },
+    },
+  })
+}
 
-  /**
-   * Finds a user that owns a valid (non-expired) reset token.
-   * Returns `null` if the token is invalid or has expired.
-   */
-  async findUserByResetToken(token: string) {
-    return this.prisma.user.findFirst({
-      where: {
-        resetToken: token,
-        resetTokenExpiry: { gt: new Date() },
-      },
-    })
-  }
+export async function validatePassword(password: string, hash: string) {
+  return comparePassword(password, hash)
+}
 
-  /** Validates a plain-text password against a stored bcrypt hash. */
-  async validatePassword(password: string, hash: string) {
-    return comparePassword(password, hash)
-  }
+export async function generateResetToken(userId: string) {
+  const resetToken = crypto.randomBytes(32).toString('hex')
+  const resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 60) // 1 hour
 
-  /**
-   * Generates a cryptographically random reset token, stores it on the user,
-   * and sets a 1-hour expiry window.
-   *
-   * @returns The plain-text reset token to be sent via email.
-   */
-  async generateResetToken(userId: string) {
-    const resetToken = crypto.randomBytes(32).toString('hex')
-    const resetTokenExpiry = new Date(Date.now() + 1000 * 60 * 60) // 1 hour
+  await fastify.prisma.user.update({
+    where: { id: userId },
+    data: { resetToken, resetTokenExpiry },
+  })
 
-    await this.prisma.user.update({
-      where: { id: userId },
-      data: { resetToken, resetTokenExpiry },
-    })
+  return resetToken
+}
 
-    return resetToken
-  }
+export async function sendPasswordResetEmail(email: string, firstName: string, resetToken: string) {
+  const resetLink = `${config.appUrl}/reset-password?token=${resetToken}`
+  const html = resetPasswordTemplate({ firstName, resetLink })
 
-  /**
-   * Sends a password-reset email containing a link with the reset token.
-   * Uses the HTML template from `templates/reset-password.html`.
-   */
-  async sendPasswordResetEmail(email: string, firstName: string, resetToken: string) {
-    const resetLink = `${config.appUrl}/reset-password?token=${resetToken}`
-    const html = resetPasswordTemplate({ firstName, resetLink })
+  await sendEmail({
+    to: email,
+    subject: 'Reset your password',
+    html,
+    text: `Hi ${firstName},\n\nReset your password: ${resetLink}\n\nThis link expires in 1 hour.`,
+  })
+}
 
-    await sendEmail({
-      to: email,
-      subject: 'Reset your password',
-      html,
-      text: `Hi ${firstName},\n\nReset your password: ${resetLink}\n\nThis link expires in 1 hour.`,
-    })
-  }
+export async function resetPassword(userId: string, newPassword: string) {
+  const passwordHash = await hashPassword(newPassword)
+  return fastify.prisma.user.update({
+    where: { id: userId },
+    data: { passwordHash, resetToken: null, resetTokenExpiry: null },
+  })
+}
 
-  /**
-   * Hashes the new password, saves it, and clears the reset token fields.
-   */
-  async resetPassword(userId: string, newPassword: string) {
-    const passwordHash = await hashPassword(newPassword)
-    return this.prisma.user.update({
-      where: { id: userId },
-      data: { passwordHash, resetToken: null, resetTokenExpiry: null },
-    })
-  }
-
-  /** Updates the authenticated user's profile fields (firstName, lastName, email). */
-  async updateProfileData(userId: string, data: TUpdateProfileSchema) {
-    return this.prisma.user.update({
-      where: { id: userId },
-      data,
-      select: safeFields,
-    })
-  }
-
+export async function updateProfileData(userId: string, data: TUpdateProfileSchema) {
+  return fastify.prisma.user.update({
+    where: { id: userId },
+    data,
+    select: safeFields,
+  })
 }

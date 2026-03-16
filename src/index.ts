@@ -1,10 +1,10 @@
-import { createApp, registerPlugins } from '@/core/bootstrap'
+import { fastify } from '@/app'
+import { registerPlugins } from '@/core/bootstrap'
 import { authRoutes } from '@/modules/auth/auth.routes'
 import { usersRoutes } from '@/modules/users/users.routes'
 import { config } from '@/core/config'
 
 async function start() {
-  const fastify = createApp()
   await registerPlugins(fastify)
   await fastify.register(authRoutes, { prefix: '/api' })
   await fastify.register(usersRoutes, { prefix: '/api' })
