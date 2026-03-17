@@ -57,7 +57,6 @@ export const signIn = async (request: TSignInRequest, reply: FastifyReply) => {
       ok(
         {
           accessToken,
-          refreshToken,
           user: {
             id: user.id,
             firstName: user.firstName,

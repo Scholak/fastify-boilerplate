@@ -35,7 +35,6 @@ export async function authRoutes(fastify: FastifyInstance) {
           200: apiResponse(
             z.object({
               accessToken: z.string().describe('JWT access token (expires in 15 min)'),
-              refreshToken: z.string().describe('JWT refresh token (expires in 7 days)'),
               user: authUserSchema,
             }),
           ),
