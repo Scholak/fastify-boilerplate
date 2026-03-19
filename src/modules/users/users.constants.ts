@@ -1,30 +1,34 @@
 export const validationMessages = {
   firstName: {
-    required: 'First name is required',
+    required: 'Ad alanı zorunludur',
   },
   lastName: {
-    required: 'Last name is required',
+    required: 'Soyad alanı zorunludur',
   },
   email: {
-    invalid: 'Invalid email address',
+    invalid: 'Geçersiz e-posta adresi',
   },
   password: {
-    min: 'Password must be at least 8 characters',
-    uppercase: 'Password must contain at least one uppercase letter',
-    number: 'Password must contain at least one number',
+    min: 'Şifre en az 8 karakter olmalıdır',
+    uppercase: 'Şifre en az bir büyük harf içermelidir',
+    number: 'Şifre en az bir rakam içermelidir',
   },
   confirmPassword: {
-    required: 'Confirm password field is required',
-    match: "Passwords don't match",
+    required: 'Şifre tekrar alanı zorunludur',
+    match: 'Şifreler eşleşmiyor',
   },
 } as const
 
 export const responseMessages = {
-  USERS_RETRIEVED: 'Users retrieved successfully',
-  USER_RETRIEVED: 'User retrieved successfully',
-  USER_CREATED: 'User created successfully',
-  USER_UPDATED: 'User updated successfully',
-  USER_DELETED: 'User deleted successfully',
-  USER_NOT_FOUND: 'User not found',
-  EMAIL_ALREADY_IN_USE: 'Email is already in use',
+  USERS_RETRIEVED: 'Kullanıcılar başarıyla getirildi',
+  USER_RETRIEVED: 'Kullanıcı başarıyla getirildi',
+  USER_CREATED: 'Kullanıcı başarıyla oluşturuldu',
+  USER_UPDATED: 'Kullanıcı başarıyla güncellendi',
+  USER_DELETED: 'Kullanıcı başarıyla silindi',
+  USER_NOT_FOUND: 'Kullanıcı bulunamadı',
+  EMAIL_ALREADY_IN_USE: 'Bu e-posta adresi zaten kullanımda',
+  ROLES_ASSIGNED: 'Roller başarıyla atandı',
+  ROLES_REVOKED: 'Roller başarıyla kaldırıldı',
+  ROLE_NOT_FOUND: 'Bir veya daha fazla rol bulunamadı',
+  CANNOT_DELETE_SELF: 'Kendi hesabınızı silemezsiniz',
 } as const

@@ -1,57 +1,77 @@
 import { z } from 'zod'
-import { validationMessages as vm } from '@/modules/auth/auth.constants'
+
+import { validationMessages } from '@/modules/auth/auth.constants'
+
+const {
+  email,
+  password,
+  firstName,
+  lastName,
+  token,
+  newPassword,
+  confirmPassword,
+  currentPassword,
+} = validationMessages
 
 export const signInSchema = z.object({
-  email: z.email({ error: vm.email.invalid }),
-  password: z.string().min(1, vm.password.required),
+  email: z.email({ error: email.invalid }),
+  password: z.string().min(1, password.required),
 })
 
 export const forgotPasswordSchema = z.object({
-  email: z.email({ error: vm.email.invalid }),
+  email: z.email({ error: email.invalid }),
 })
 
 export const resetPasswordSchema = z
   .object({
-    token: z.string().min(1, vm.token.required),
+    token: z.string().min(1, token.required),
     newPassword: z
       .string()
-      .min(8, vm.newPassword.min)
-      .regex(/[A-Z]/, vm.newPassword.uppercase)
-      .regex(/[0-9]/, vm.newPassword.number),
-    confirmPassword: z.string().min(1, vm.confirmPassword.required),
+      .min(8, newPassword.min)
+      .regex(/[A-Z]/, newPassword.uppercase)
+      .regex(/[0-9]/, newPassword.number),
+    confirmPassword: z.string().min(1, confirmPassword.required),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
-    message: vm.confirmPassword.match,
+    message: confirmPassword.match,
     path: ['confirmPassword'],
   })
 
 export const updateProfileSchema = z.object({
-  firstName: z.string().min(1, vm.firstName.required),
-  lastName: z.string().min(1, vm.lastName.required),
-  email: z.email({ error: vm.email.invalid }),
+  firstName: z.string().min(1, firstName.required),
+  lastName: z.string().min(1, lastName.required),
+  email: z.email({ error: email.invalid }),
 })
 
 export const changePasswordSchema = z
   .object({
-    currentPassword: z.string().min(1, vm.currentPassword.required),
+    currentPassword: z.string().min(1, currentPassword.required),
     newPassword: z
       .string()
-      .min(1, vm.newPassword.required)
-      .min(8, vm.newPassword.min)
-      .regex(/[A-Z]/, vm.newPassword.uppercase)
-      .regex(/[0-9]/, vm.newPassword.number),
-    confirmPassword: z.string().min(1, vm.confirmPassword.required),
+      .min(1, newPassword.required)
+      .min(8, newPassword.min)
+      .regex(/[A-Z]/, newPassword.uppercase)
+      .regex(/[0-9]/, newPassword.number),
+    confirmPassword: z.string().min(1, confirmPassword.required),
   })
   .refine((data) => data.newPassword === data.confirmPassword, {
     path: ['confirmPassword'],
-    message: vm.confirmPassword.match,
+    message: confirmPassword.match,
   })
+
+export const authRoleSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  permissions: z.array(z.string()),
+})
 
 export const authUserSchema = z.object({
   id: z.string(),
   firstName: z.string(),
   lastName: z.string(),
   email: z.string(),
+  roles: z.array(authRoleSchema),
+  permissions: z.array(z.string()),
 })
 
 export const currentUserSchema = z.object({
@@ -61,6 +81,8 @@ export const currentUserSchema = z.object({
   email: z.string(),
   createdAt: z.union([z.string(), z.date()]),
   updatedAt: z.union([z.string(), z.date()]),
+  roles: z.array(authRoleSchema),
+  permissions: z.array(z.string()),
 })
 
 export type TSignInSchema = z.infer<typeof signInSchema>

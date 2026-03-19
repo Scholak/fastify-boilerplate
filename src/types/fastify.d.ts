@@ -23,6 +23,8 @@ declare module 'fastify' {
       email: string
       createdAt: Date
       updatedAt: Date
+      roles: Array<{ id: string; name: string; permissions: string[] }>
+      permissions: string[]
     }
   }
 }

@@ -1,22 +1,23 @@
+import fastifyCookie from '@fastify/cookie'
+import cors from '@fastify/cors'
+import helmet from '@fastify/helmet'
+import rateLimit from '@fastify/rate-limit'
+import swagger from '@fastify/swagger'
+import swaggerUi from '@fastify/swagger-ui'
 import Fastify from 'fastify'
 import {
   serializerCompiler,
   validatorCompiler,
   jsonSchemaTransform,
 } from 'fastify-type-provider-zod'
-import cors from '@fastify/cors'
-import helmet from '@fastify/helmet'
-import fastifyCookie from '@fastify/cookie'
-import rateLimit from '@fastify/rate-limit'
-import swagger from '@fastify/swagger'
-import swaggerUi from '@fastify/swagger-ui'
+import { ZodTypeProvider } from 'fastify-type-provider-zod'
+
 import { config } from '@/core/config'
+import { errorCodes } from '@/core/lib/errors'
+import { fail } from '@/core/lib/response'
+import errorHandlerPlugin from '@/core/plugins/error-handler'
 import prismaPlugin from '@/core/plugins/prisma'
 import redisPlugin from '@/core/plugins/redis'
-import errorHandlerPlugin from '@/core/plugins/error-handler'
-import { fail } from '@/core/lib/response'
-import { errorCodes } from '@/core/lib/errors'
-import { ZodTypeProvider } from 'fastify-type-provider-zod'
 
 export function createApp() {
   const fastify = Fastify({

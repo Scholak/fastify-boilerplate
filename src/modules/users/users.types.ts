@@ -1,5 +1,11 @@
 import { FastifyRequest, RouteGenericInterface } from 'fastify'
-import { TCreateUserSchema, TUpdateUserSchema } from './users.schemas'
+
+import {
+  TCreateUserSchema,
+  TUpdateUserSchema,
+  TAssignUserRolesSchema,
+  TRevokeUserRolesSchema,
+} from '@/modules/users/users.schemas'
 
 // --- Model types ---
 
@@ -8,7 +14,6 @@ export interface TUserModel {
   firstName: string
   lastName: string
   email: string
-  profile: string | null
   createdAt: Date
   updatedAt: Date
   createdById: string | null
@@ -43,3 +48,9 @@ export type TUpdateUserRequest = FastifyRequest<
   { Params: TGetUserParams; Body: TUpdateUserSchema } & RouteGenericInterface
 >
 export type TDeleteUserRequest = FastifyRequest<{ Params: TGetUserParams } & RouteGenericInterface>
+export type TAssignUserRolesRequest = FastifyRequest<
+  { Params: TGetUserParams; Body: TAssignUserRolesSchema } & RouteGenericInterface
+>
+export type TRevokeUserRolesRequest = FastifyRequest<
+  { Params: TGetUserParams; Body: TRevokeUserRolesSchema } & RouteGenericInterface
+>

@@ -1,4 +1,5 @@
 import { SESClient, SendEmailCommand } from '@aws-sdk/client-ses'
+
 import { config } from '@/core/config'
 
 /** Singleton SES client initialised from environment config. */

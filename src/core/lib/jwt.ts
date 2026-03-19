@@ -1,4 +1,5 @@
 import { SignJWT, jwtVerify } from 'jose'
+
 import { config } from '@/core/config'
 
 /** HS256 secret for short-lived access tokens (15 minutes). */

@@ -1,22 +1,14 @@
-import { fastify } from '@/app'
-import { comparePassword, hashPassword } from '@/core/lib/password'
-import { sendEmail } from '@/core/lib/email'
-import { config } from '@/core/config'
-import { resetPasswordTemplate } from '@/modules/auth/templates/reset-password.template'
-import type { TUpdateProfileSchema } from '@/modules/auth/auth.schemas'
 import crypto from 'crypto'
 
-/** Excludes sensitive fields (passwordHash, resetToken, resetTokenExpiry) from query results. */
-const safeFields = {
-  id: true,
-  firstName: true,
-  lastName: true,
-  email: true,
-  createdAt: true,
-  updatedAt: true,
-  createdById: true,
-  updatedById: true,
-} as const
+import { config } from '@/core/config'
+import { sendEmail } from '@/core/lib/email'
+import { comparePassword, hashPassword } from '@/core/lib/password'
+
+import { fastify } from '@/app'
+
+import type { TUpdateProfileSchema } from '@/modules/auth/auth.schemas'
+import { resetPasswordTemplate } from '@/modules/auth/templates/reset-password.template'
+
 
 export async function findUserByEmail(email: string) {
   return fastify.prisma.user.findUnique({ where: { email } })
@@ -24,6 +16,42 @@ export async function findUserByEmail(email: string) {
 
 export async function findUserById(id: string) {
   return fastify.prisma.user.findUnique({ where: { id } })
+}
+
+export async function findUserWithRoles(id: string) {
+  const user = await fastify.prisma.user.findUnique({
+    where: { id },
+    omit: { passwordHash: true, resetToken: true, resetTokenExpiry: true },
+    include: {
+      roles: {
+        include: {
+          role: {
+            include: { permissions: true },
+          },
+        },
+      },
+    },
+  })
+
+  if (!user) return null
+
+  const roles = user.roles.map((ur) => ({
+    id: ur.role.id,
+    name: ur.role.name,
+    permissions: ur.role.permissions.map((rp) => rp.permissionKey),
+  }))
+  const permissions = [...new Set(roles.flatMap((r) => r.permissions))]
+
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    roles,
+    permissions,
+  }
 }
 
 export async function findUserByResetToken(token: string) {
@@ -72,9 +100,36 @@ export async function resetPassword(userId: string, newPassword: string) {
 }
 
 export async function updateProfileData(userId: string, data: TUpdateProfileSchema) {
-  return fastify.prisma.user.update({
+  const user = await fastify.prisma.user.update({
     where: { id: userId },
     data,
-    select: safeFields,
+    omit: { passwordHash: true, resetToken: true, resetTokenExpiry: true },
+    include: {
+      roles: {
+        include: {
+          role: {
+            include: { permissions: true },
+          },
+        },
+      },
+    },
   })
+
+  const roles = user.roles.map((ur) => ({
+    id: ur.role.id,
+    name: ur.role.name,
+    permissions: ur.role.permissions.map((rp) => rp.permissionKey),
+  }))
+  const permissions = [...new Set(roles.flatMap((r) => r.permissions))]
+
+  return {
+    id: user.id,
+    firstName: user.firstName,
+    lastName: user.lastName,
+    email: user.email,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+    roles,
+    permissions,
+  }
 }

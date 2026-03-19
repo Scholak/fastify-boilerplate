@@ -1,46 +1,47 @@
 export const validationMessages = {
   firstName: {
-    required: 'First name is required',
+    required: 'Ad alanı zorunludur',
   },
   lastName: {
-    required: 'Last name is required',
+    required: 'Soyad alanı zorunludur',
   },
   email: {
-    invalid: 'Invalid email address',
+    invalid: 'Geçersiz e-posta adresi',
   },
   password: {
-    required: 'Password is required',
+    required: 'Şifre alanı zorunludur',
   },
   newPassword: {
-    required: 'Password field is required',
-    min: 'Password must be at least 8 characters',
-    uppercase: 'Password must contain at least one uppercase letter',
-    number: 'Password must contain at least one number',
+    required: 'Şifre alanı zorunludur',
+    min: 'Şifre en az 8 karakter olmalıdır',
+    uppercase: 'Şifre en az bir büyük harf içermelidir',
+    number: 'Şifre en az bir rakam içermelidir',
   },
   currentPassword: {
-    required: 'Current password is required',
+    required: 'Mevcut şifre alanı zorunludur',
   },
   confirmPassword: {
-    required: 'Confirm password field is required',
-    match: "Passwords don't match",
+    required: 'Şifre tekrar alanı zorunludur',
+    match: 'Şifreler eşleşmiyor',
   },
   token: {
-    required: 'Token is required',
+    required: 'Token alanı zorunludur',
   },
 } as const
 
 export const responseMessages = {
-  SIGNED_IN: 'Signed in successfully',
-  RESET_LINK_SENT: 'If the email exists, a reset link has been sent',
-  PASSWORD_RESET: 'Password reset successfully',
-  TOKEN_REFRESHED: 'Token refreshed',
-  CURRENT_USER: 'Current user',
-  INVALID_CREDENTIALS: 'Invalid email or password',
-  INVALID_TOKEN: 'Invalid or expired reset token',
-  NO_REFRESH_TOKEN: 'No refresh token provided',
-  INVALID_REFRESH_TOKEN: 'Invalid refresh token',
-  INVALID_EXPIRED_REFRESH_TOKEN: 'Invalid or expired refresh token',
-  PROFILE_UPDATED: 'Profile updated successfully',
-  PASSWORD_CHANGED: 'Password changed successfully',
-  INVALID_CURRENT_PASSWORD: 'Current password is incorrect',
+  SIGNED_IN: 'Giriş başarılı',
+  SIGNED_OUT: 'Çıkış başarılı',
+  RESET_LINK_SENT: 'E-posta adresi kayıtlıysa sıfırlama bağlantısı gönderildi',
+  PASSWORD_RESET: 'Şifre başarıyla sıfırlandı',
+  TOKEN_REFRESHED: 'Token yenilendi',
+  CURRENT_USER: 'Mevcut kullanıcı',
+  INVALID_CREDENTIALS: 'E-posta veya şifre hatalı',
+  INVALID_TOKEN: 'Geçersiz veya süresi dolmuş sıfırlama tokeni',
+  NO_REFRESH_TOKEN: 'Yenileme tokeni sağlanmadı',
+  INVALID_REFRESH_TOKEN: 'Geçersiz yenileme tokeni',
+  INVALID_EXPIRED_REFRESH_TOKEN: 'Geçersiz veya süresi dolmuş yenileme tokeni',
+  PROFILE_UPDATED: 'Profil başarıyla güncellendi',
+  PASSWORD_CHANGED: 'Şifre başarıyla değiştirildi',
+  INVALID_CURRENT_PASSWORD: 'Mevcut şifre hatalı',
 } as const

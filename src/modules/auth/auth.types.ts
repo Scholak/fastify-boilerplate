@@ -1,11 +1,12 @@
 import { FastifyRequest, RouteGenericInterface } from 'fastify'
+
 import {
   TChangePasswordSchema,
   TForgotPasswordSchema,
   TResetPasswordSchema,
   TSignInSchema,
   TUpdateProfileSchema,
-} from './auth.schemas'
+} from '@/modules/auth/auth.schemas'
 
 // --- Model types ---
 

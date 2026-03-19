@@ -1,13 +1,17 @@
-import { fastify } from '@/app'
 import { registerPlugins } from '@/core/bootstrap'
-import { authRoutes } from '@/modules/auth/auth.routes'
-import { usersRoutes } from '@/modules/users/users.routes'
 import { config } from '@/core/config'
+
+import { fastify } from '@/app'
+
+import { authRoutes } from '@/modules/auth/auth.routes'
+import { rolesRoutes } from '@/modules/roles/roles.routes'
+import { usersRoutes } from '@/modules/users/users.routes'
 
 async function start() {
   await registerPlugins(fastify)
   await fastify.register(authRoutes, { prefix: '/api' })
   await fastify.register(usersRoutes, { prefix: '/api' })
+  await fastify.register(rolesRoutes, { prefix: '/api' })
 
   fastify.get('/health', async () => ({ status: 'ok', timestamp: new Date().toISOString() }))
 

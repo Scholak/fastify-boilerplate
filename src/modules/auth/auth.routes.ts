@@ -1,9 +1,13 @@
 import { FastifyInstance } from 'fastify'
 import { z } from 'zod'
+
+import { errorResponseSchema, apiResponse } from '@/core/lib/schemas'
 import { authenticate } from '@/core/plugins/authenticate'
+
 import { authRateLimits } from '@/modules/auth/auth.config'
 import {
   signIn,
+  signOut,
   forgotPassword,
   resetPassword,
   getToken,
@@ -20,7 +24,6 @@ import {
   authUserSchema,
   currentUserSchema,
 } from '@/modules/auth/auth.schemas'
-import { errorResponseSchema, apiResponse } from '@/core/lib/schemas'
 
 export async function authRoutes(fastify: FastifyInstance) {
   fastify.post(
@@ -45,6 +48,24 @@ export async function authRoutes(fastify: FastifyInstance) {
       },
     },
     signIn,
+  )
+
+  fastify.post(
+    '/auth/sign-out',
+    {
+      preHandler: authenticate,
+      config: { rateLimit: authRateLimits.signOut },
+      schema: {
+        tags: ['Auth'],
+        summary: 'Sign out and clear the refresh token cookie',
+        security: [{ bearerAuth: [] }],
+        response: {
+          200: apiResponse(z.null()),
+          401: errorResponseSchema,
+        },
+      },
+    },
+    signOut,
   )
 
   fastify.post(

@@ -1,7 +1,8 @@
-import fp from 'fastify-plugin'
 import { FastifyPluginAsync, FastifyError } from 'fastify'
-import { fail } from '@/core/lib/response'
+import fp from 'fastify-plugin'
+
 import { errorCodes } from '@/core/lib/errors'
+import { fail } from '@/core/lib/response'
 
 const errorHandlerPlugin: FastifyPluginAsync = async (fastify) => {
   fastify.setErrorHandler((err, request, reply) => {
