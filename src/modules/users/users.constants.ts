@@ -27,6 +27,7 @@ export const responseMessages = {
   USER_DELETED: 'Kullanıcı başarıyla silindi',
   USER_NOT_FOUND: 'Kullanıcı bulunamadı',
   EMAIL_ALREADY_IN_USE: 'Bu e-posta adresi zaten kullanımda',
+  USER_ROLES_RETRIEVED: 'Kullanıcı rolleri başarıyla getirildi',
   ROLES_ASSIGNED: 'Roller başarıyla atandı',
   ROLES_REVOKED: 'Roller başarıyla kaldırıldı',
   ROLE_NOT_FOUND: 'Bir veya daha fazla rol bulunamadı',

@@ -11,19 +11,23 @@ import {
   list,
   getOne,
   getOneForEdit,
+  getUserRoles,
   create,
   update,
   remove,
   assignRoles,
   revokeRoles,
+  updateRoles,
 } from '@/modules/users/users.handlers'
 import {
   createUserSchema,
   updateUserSchema,
   userIdParamsSchema,
   userResponseSchema,
+  userRolesResponseSchema,
   assignUserRolesSchema,
   revokeUserRolesSchema,
+  updateUserRolesSchema,
 } from '@/modules/users/users.schemas'
 
 export async function usersRoutes(fastify: FastifyInstance) {
@@ -153,6 +157,49 @@ export async function usersRoutes(fastify: FastifyInstance) {
       },
     },
     remove,
+  )
+
+  fastify.get(
+    '/users/:userId/roles',
+    {
+      preHandler: [authenticate, authorize([PERMISSIONS.USERS_ASSIGN_ROLES])],
+      config: { rateLimit: usersRateLimits.getOne },
+      schema: {
+        tags: ['Users'],
+        summary: 'Get user roles',
+        security: [{ bearerAuth: [] }],
+        params: userIdParamsSchema,
+        response: {
+          200: apiResponse(userRolesResponseSchema),
+          401: errorResponseSchema,
+          403: errorResponseSchema,
+          404: errorResponseSchema,
+        },
+      },
+    },
+    getUserRoles,
+  )
+
+  fastify.put(
+    '/users/:userId/roles',
+    {
+      preHandler: [authenticate, authorize([PERMISSIONS.USERS_ASSIGN_ROLES])],
+      config: { rateLimit: usersRateLimits.update },
+      schema: {
+        tags: ['Users'],
+        summary: 'Update user roles (replaces all existing roles)',
+        security: [{ bearerAuth: [] }],
+        params: userIdParamsSchema,
+        body: updateUserRolesSchema,
+        response: {
+          200: apiResponse(z.null()),
+          401: errorResponseSchema,
+          403: errorResponseSchema,
+          404: errorResponseSchema,
+        },
+      },
+    },
+    updateRoles,
   )
 
   fastify.post(

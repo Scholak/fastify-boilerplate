@@ -39,6 +39,18 @@ export const revokeUserRolesSchema = z.object({
   roleIds: z.array(z.string()).min(1, 'At least one role ID is required'),
 })
 
+export const updateUserRolesSchema = z.object({
+  roleIds: z.array(z.string()),
+})
+
+export const userRolesResponseSchema = z.array(
+  z.object({
+    id: z.string(),
+    name: z.string(),
+    permissions: z.array(z.string()),
+  }),
+)
+
 export const userResponseSchema = z.object({
   id: z.string(),
   firstName: z.string(),
@@ -61,3 +73,4 @@ export type TCreateUserSchema = z.infer<typeof createUserSchema>
 export type TUpdateUserSchema = z.infer<typeof updateUserSchema>
 export type TAssignUserRolesSchema = z.infer<typeof assignUserRolesSchema>
 export type TRevokeUserRolesSchema = z.infer<typeof revokeUserRolesSchema>
+export type TUpdateUserRolesSchema = z.infer<typeof updateUserRolesSchema>

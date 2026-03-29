@@ -5,6 +5,7 @@ import {
   TUpdateUserSchema,
   TAssignUserRolesSchema,
   TRevokeUserRolesSchema,
+  TUpdateUserRolesSchema,
 } from '@/modules/users/users.schemas'
 
 // --- Model types ---
@@ -53,4 +54,8 @@ export type TAssignUserRolesRequest = FastifyRequest<
 >
 export type TRevokeUserRolesRequest = FastifyRequest<
   { Params: TGetUserParams; Body: TRevokeUserRolesSchema } & RouteGenericInterface
+>
+export type TGetUserRolesRequest = FastifyRequest<{ Params: TGetUserParams } & RouteGenericInterface>
+export type TUpdateUserRolesRequest = FastifyRequest<
+  { Params: TGetUserParams; Body: TUpdateUserRolesSchema } & RouteGenericInterface
 >

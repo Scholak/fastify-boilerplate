@@ -8,6 +8,7 @@ import type {
   TUpdateUserSchema,
   TAssignUserRolesSchema,
   TRevokeUserRolesSchema,
+  TUpdateUserRolesSchema,
 } from '@/modules/users/users.schemas'
 
 const USER_CACHE_PREFIX = 'user:'
@@ -138,6 +139,42 @@ export async function remove(id: string) {
   const user = await fastify.prisma.user.delete({ where: { id } })
   await invalidateCache(id)
   return user
+}
+
+export async function findUserRoles(id: string) {
+  const user = await fastify.prisma.user.findUnique({
+    where: { id },
+    select: {
+      roles: {
+        include: {
+          role: {
+            include: { permissions: true },
+          },
+        },
+      },
+    },
+  })
+  if (!user) return null
+  return user.roles.map((ur) => ({
+    id: ur.role.id,
+    name: ur.role.name,
+    permissions: ur.role.permissions.map((p) => p.permissionKey),
+  }))
+}
+
+export async function updateRoles(userId: string, data: TUpdateUserRolesSchema) {
+  await fastify.prisma.$transaction([
+    fastify.prisma.userRole.deleteMany({ where: { userId } }),
+    ...(data.roleIds.length > 0
+      ? [
+          fastify.prisma.userRole.createMany({
+            data: data.roleIds.map((roleId) => ({ userId, roleId })),
+            skipDuplicates: true,
+          }),
+        ]
+      : []),
+  ])
+  await invalidateCache(userId)
 }
 
 export async function assignRoles(userId: string, data: TAssignUserRolesSchema) {

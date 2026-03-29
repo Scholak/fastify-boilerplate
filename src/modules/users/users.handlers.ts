@@ -9,11 +9,13 @@ import {
   findAll,
   findById,
   findByIdForEdit,
+  findUserRoles,
   create as createUserRecord,
   update as updateUserRecord,
   remove as removeUserRecord,
   assignRoles as assignUserRoles,
   revokeRoles as revokeUserRoles,
+  updateRoles as updateUserRolesRecord,
 } from '@/modules/users/users.service'
 import type {
   TListUsersRequest,
@@ -23,6 +25,8 @@ import type {
   TDeleteUserRequest,
   TAssignUserRolesRequest,
   TRevokeUserRolesRequest,
+  TGetUserRolesRequest,
+  TUpdateUserRolesRequest,
 } from '@/modules/users/users.types'
 
 export const list = async (_request: TListUsersRequest, reply: FastifyReply) => {
@@ -97,6 +101,28 @@ export const remove = async (request: TDeleteUserRequest, reply: FastifyReply) =
     if (err instanceof Prisma.PrismaClientKnownRequestError) {
       if (err.code === 'P2025') {
         return reply.status(404).send(fail(errorCodes.NOT_FOUND, responseMessages.USER_NOT_FOUND))
+      }
+    }
+    throw err
+  }
+}
+
+export const getUserRoles = async (request: TGetUserRolesRequest, reply: FastifyReply) => {
+  const roles = await findUserRoles(request.params.userId)
+  if (!roles) {
+    return reply.status(404).send(fail(errorCodes.NOT_FOUND, responseMessages.USER_NOT_FOUND))
+  }
+  return reply.send(ok(roles, responseMessages.USER_ROLES_RETRIEVED))
+}
+
+export const updateRoles = async (request: TUpdateUserRolesRequest, reply: FastifyReply) => {
+  try {
+    await updateUserRolesRecord(request.params.userId, request.body)
+    return reply.send(ok(null, responseMessages.ROLES_ASSIGNED))
+  } catch (err: unknown) {
+    if (err instanceof Prisma.PrismaClientKnownRequestError) {
+      if (err.code === 'P2003' || err.code === 'P2025') {
+        return reply.status(404).send(fail(errorCodes.NOT_FOUND, responseMessages.ROLE_NOT_FOUND))
       }
     }
     throw err
